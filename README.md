@@ -43,6 +43,12 @@ Same agent, same account. The only thing that changes is what it remembers.
 - Account health dashboard
 - Healthy / Watch / At Risk / Critical states
 
+## Architecture
+
+See the complete system architecture:
+
+👉 [View Architecture](Architecture.md)
+
 ## How Hindsight memory is used
 
 There are two kinds of memory, and both are central.
