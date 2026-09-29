@@ -6,7 +6,6 @@ No single support ticket or QBR note tells you a customer is about to leave. The
 
 The agent also learns **across accounts**. When it assesses a customer, it recalls how similar past accounts played out (churned vs. saved) and recommends what actually worked, without naming those other customers.
 
-> Built for the Hindsight hackathon, *AI Agents That Learn Using Hindsight*.
 
 ---
 
