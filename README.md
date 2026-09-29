@@ -217,9 +217,7 @@ Python, [Hindsight](https://github.com/vectorize-io/hindsight) (memory), Groq (L
 
 ---
 
-#### 4. Add team
-
-Near the bottom:
+#### 
 
 ```markdown
 ## Team
