@@ -14,13 +14,13 @@ The Renewal Risk Agent includes a local dashboard for viewing customer accounts,
 
 ### Dashboard Screenshots
 
-![Dashboard Screenshot 1](Dashboard1.jpeg)
+![Dashboard Screenshot 1](screenshots/Dashboard1.jpeg)
 
-![Dashboard Screenshot 2](Dashboard2.jpeg)
+![Dashboard Screenshot 2](screenshots/Dashboard2.jpeg)
 
-![Dashboard Screenshot 3](Dashboard3.jpeg)
+![Dashboard Screenshot 3](screenshots/Dashboard3.jpeg)
 
-![Dashboard Screenshot 4](Dashboard4.jpeg)
+![Dashboard Screenshot 4](screenshots/Dashboard4.jpeg)
 
 ## What it does
 
