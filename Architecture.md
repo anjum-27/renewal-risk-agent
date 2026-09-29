@@ -1,3 +1,9 @@
+# Renewal Risk Agent — System Architecture
+
+This document describes the architecture and data flow of the Renewal Risk Agent, from customer-event ingestion to memory-based risk assessment and dashboard output.
+
+---
+
 ## System Architecture
 
 This architecture separates memory retrieval from reflection, allowing the Renewal Risk Agent to combine historical context with current customer signals.
