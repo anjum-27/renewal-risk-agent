@@ -8,6 +8,19 @@ The agent also learns **across accounts**. When it assesses a customer, it recal
 
 
 ---
+## Dashboard
+
+The Renewal Risk Agent includes a local dashboard for viewing customer accounts, renewal risk assessments, supporting evidence, and recommended actions.
+
+### Dashboard Screenshots
+
+![Dashboard Screenshot 1](Dashboard1.jpeg)
+
+![Dashboard Screenshot 2](Dashboard2.jpeg)
+
+![Dashboard Screenshot 3](Dashboard3.jpeg)
+
+![Dashboard Screenshot 4](Dashboard4.jpeg)
 
 ## What it does
 
