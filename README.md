@@ -66,7 +66,7 @@ Design choices worth noting:
 - **Async ingestion.** `ingest.py` uses `retain_batch(..., retain_async=True)` so Hindsight's own worker handles extraction and provider rate limits. `check_status.py` reports when it's done.
 - **Fresh client per call.** `risk_agent.py` creates a new Hindsight client per call to avoid event-loop reuse errors in the long-running Flask server.
 
-## Architecture
+## Implementation Flow
 
 ```
 generate_synthetic_data.py  ->  data/accounts.json  (6 accounts x 6 months)
