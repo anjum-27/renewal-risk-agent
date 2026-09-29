@@ -214,3 +214,21 @@ python ingest.py --skip acct_005
 ## Tech stack
 
 Python, [Hindsight](https://github.com/vectorize-io/hindsight) (memory), Groq (LLM via OpenAI-compatible API), Flask, Faker.
+
+---
+
+#### 4. Add team
+
+Near the bottom:
+
+```markdown
+## Team
+
+Built collaboratively by our six-member team.
+
+- Duvvuru Anjum
+- Ghanta Chaitra Deepika
+- Dhruvitha Ravipati
+- Irla Ajay Sai Ganesh
+- Jonnakuti Aditya Nandan
+- Mallela Bala Sravan kumar
