@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renewal Risk Agent</title>
+<style>
+:root{
+  --bg:#eef2f8; --panel:#fff; --ink:#15222c; --muted:#5b6b78; --line:#d6deea; --accent:#2f56a6; --band:#16284a;
+  --healthy:#178a6c; --watch:#c27d05; --risk:#c43d27; --critical:#8f1638; --saved:#2f56a6;
+  --serif:Charter,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0d141b; --panel:#17212b; --ink:#e6edf2; --muted:#93a4b1; --line:#2a3944; --accent:#8fb0f0; --band:#0a1730;
+        --healthy:#4cc3a3; --watch:#e3ad3f; --risk:#f07a63; --critical:#ee6b8b; --saved:#8fb0f0;}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+header{background:var(--band);color:#fff}
+.hin{max-width:1180px;margin:0 auto;padding:24px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+header h1{font:600 28px/1.2 var(--serif);margin:0 0 4px}
+header p{margin:0;color:#b9c7e2;max-width:52ch}
+.tally{display:flex;gap:8px;flex-wrap:wrap}
+.tile{background:rgba(255,255,255,.1);border-top:4px solid var(--c);border-radius:6px;padding:6px 14px;min-width:92px}
+.tile b{font:600 24px/1.2 var(--serif);display:block}
+.tile span{font-size:13px;color:#cbd6ec}
+
+main{max-width:1180px;margin:0 auto;padding:20px 24px 48px;display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start}
+@media (max-width:820px){main{grid-template-columns:1fr}}
+.v-healthy{--c:var(--healthy)} .v-watch{--c:var(--watch)} .v-risk{--c:var(--risk)} .v-critical{--c:var(--critical)} .v-none{--c:var(--muted)}
+
+aside{position:sticky;top:16px}
+@media (max-width:820px){aside{position:static}}
+#q{width:100%;font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);margin-bottom:8px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.f{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;padding:2px 12px}
+.f[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+#list{display:flex;flex-direction:column;gap:8px}
+.acct{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:12px 14px 12px 34px;position:relative}
+.acct::before{content:"";position:absolute;left:14px;top:18px;width:11px;height:11px;border-radius:50%;background:var(--c,var(--line))}
+.acct:hover{border-color:var(--accent)}
+.acct[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.acct:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.acct b{display:block;font-weight:600}
+.acct small{color:var(--muted)}
+.chip{display:inline-block;border-radius:99px;padding:0 10px;font-size:13px;background:color-mix(in srgb,var(--c) 16%,var(--panel));color:var(--c);border:1px solid color-mix(in srgb,var(--c) 40%,var(--panel));font-weight:600}
+.t-healthy{--c:var(--healthy)} .t-churned{--c:var(--risk)} .t-at_risk_saved{--c:var(--saved)}
+
+#detail{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:28px;min-height:320px}
+#detail h2{font:600 24px/1.25 var(--serif);margin:0}
+.sub{color:var(--muted);margin:2px 0 18px}
+.bar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;cursor:pointer;background:none;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:6px 14px}
+.btn:hover{background:var(--accent);color:var(--panel)}
+
+.verdict{border-radius:8px;border-left:8px solid var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel));padding:14px 20px;margin:0 0 16px}
+.verdict .vw{font:600 36px/1.1 var(--serif);color:var(--c)}
+.verdict p{margin:6px 0 0;max-width:62ch}
+.hist{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 18px;color:var(--muted);font-size:14px}
+.hist .chip{--c:var(--c)}
+
+h3{font:600 18px/1.3 var(--serif);margin:26px 0 8px}
+h4{font:600 16px/1.3 var(--sans);margin:16px 0 6px}
+p{margin:0 0 10px;max-width:70ch}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:70ch} li{margin-bottom:6px}
+#acts ul,#acts ol{list-style:none;padding:0}
+#acts li{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+#acts li:hover{border-color:var(--accent)}
+#acts label{display:flex;gap:10px;cursor:pointer;align-items:flex-start}
+#acts input{margin-top:5px;accent-color:var(--healthy);width:18px;height:18px;flex:none}
+#acts li.done{background:color-mix(in srgb,var(--healthy) 12%,var(--panel));border-color:var(--healthy)}
+#acts li.done span{text-decoration:line-through;color:var(--muted)}
+.prog{color:var(--muted);font-size:14px;margin:-6px 0 12px}
+code{background:var(--bg);padding:0 4px;border-radius:4px}
+.tw{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px} th,td{border-bottom:1px solid var(--line);padding:6px 12px;text-align:left}
+th{background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+details{border-top:1px solid var(--line);padding:12px 0}
+summary{cursor:pointer;font-weight:600}
+.trace li{color:var(--muted)}
+.load{display:flex;gap:12px;align-items:center;color:var(--muted)}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--accent);animation:p 1.1s ease-in-out infinite;flex:none}
+@keyframes p{50%{opacity:.25;transform:scale(.7)}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+.txt{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:100%;margin:6px 0}
+select.txt{width:auto}.draft{resize:vertical}
+.inbox{margin-bottom:18px}.inbox h3{margin:0}
+.err{border-left:6px solid var(--risk);padding:6px 0 6px 16px}
+.empty{color:var(--muted);max-width:52ch}
+</style>
+</head>
+<body>
+<header><div class="hin">
+  <div>
+    <h1>Renewal Risk Agent</h1>
+    <p>Each briefing comes from what Hindsight remembers about the account, plus how similar past accounts turned out.</p>
+  </div>
+  <div class="tally" id="tally" aria-label="Verdicts so far"></div>
+</div></header>
+<main>
+  <aside>
+    <div class="inbox"><div class="bar"><h3>Needs attention</h3><button class="btn" id="sweep">Run sweep</button></div>
+      <p class="prog" id="sweepmsg">The agent reviews every account and queues drafts for you.</p><div id="inbox" style="display:flex;flex-direction:column;gap:8px"></div></div>
+    <input id="q" type="search" placeholder="Search accounts" aria-label="Search accounts">
+    <div class="filters" id="filters"></div>
+    <nav id="list" aria-label="Accounts"></nav>
+  </aside>
+  <section id="detail" aria-live="polite">
+    <p class="empty">Pick an account to see its renewal risk and the memory behind it. Use the up and down arrow keys to move through the list.</p>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>');
+const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+
+function md(src){
+  const out=[]; let list=null, table=[];
+  const endList=()=>{ if(list){ out.push('</'+list+'>'); list=null; } };
+  const endTable=()=>{
+    if(!table.length) return;
+    const rows=table.filter(r=>!/^\s*\|?\s*:?-{2,}/.test(r)).map(r=>r.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
+    const [h,...b]=rows;
+    out.push('<div class="tw"><table><thead><tr>'+h.map(c=>'<th>'+inline(c)+'</th>').join('')+'</tr></thead><tbody>'+
+      b.map(r=>'<tr>'+r.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>');
+    table=[];
+  };
+  for(const raw of String(src||'').split('\n')){
+    const l=raw.trimEnd(); let m;
+    if(/^\s*\|/.test(l)){ endList(); table.push(l); continue; }
+    endTable();
+    if(!l.trim()){ endList(); continue; }
+    if(m=l.match(/^#{1,4}\s+(.*)/)){ endList(); out.push('<h4>'+inline(m[1])+'</h4>'); continue; }
+    if(m=l.match(/^\s*[*-]\s+(.*)/)){ if(list!=='ul'){ endList(); out.push('<ul>'); list='ul'; } out.push('<li>'+inline(m[1])+'</li>'); continue; }
+    if(m=l.match(/^\s*\d+[.)]\s+(.*)/)){ if(list!=='ol'){ endList(); out.push('<ol>'); list='ol'; } out.push('<li>'+inline(m[1])+'</li>'); continue; }
+    endList(); out.push('<p>'+inline(l)+'</p>');
+  }
+  endList(); endTable();
+  return out.join('');
+}
+
+const VERDICTS = {healthy:['Healthy','v-healthy'], watch:['Watch','v-watch'], 'at risk':['At Risk','v-risk'], critical:['Critical','v-critical']};
+const TRAJ = {healthy:'Healthy history', churned:'Churned', at_risk_saved:'Saved'};
+const FILTERS = [['all','All'],['healthy','Healthy'],['churned','Churned'],['at_risk_saved','Saved']];
+
+function splitBriefing(text){
+  const lines=String(text||'').split('\n');
+  const i=lines.findIndex(x=>x.trim());
+  const first=i<0?'':lines[i].replace(/\*\*/g,'');
+  const m=first.match(/(Critical|At Risk|Watch|Healthy)/i);
+  if(!m) return {key:null, reason:'', rest:text};
+  return {key:m[1].toLowerCase(), reason:first.slice(m.index+m[0].length).replace(/^[\s:–—-]+/,''), rest:lines.slice(i+1).join('\n')};
+}
+
+let accounts=[], ticket=0, filter='all', query='';
+const seen={};                                   // account -> verdict key (this session)
+let hist={}; try{ hist=JSON.parse(store.get('rra_hist')||'{}'); }catch(e){}
+
+function renderTally(){
+  $('#tally').innerHTML=Object.entries(VERDICTS).map(([k,[label,cls]])=>
+    '<div class="tile '+cls+'"><b>'+Object.values(seen).filter(v=>v===k).length+'</b><span>'+label+'</span></div>').join('');
+}
+
+function renderFilters(){
+  $('#filters').innerHTML=FILTERS.map(([k,l])=>'<button class="f" data-k="'+k+'" aria-pressed="'+(filter===k)+'">'+l+'</button>').join('');
+  $('#filters').querySelectorAll('.f').forEach(b=>b.addEventListener('click',()=>{ filter=b.dataset.k; renderFilters(); renderList(); }));
+}
+
+function renderList(activeId){
+  const cur=activeId||(document.querySelector('.acct[aria-current="true"]')||{}).dataset?.id;
+  const rows=accounts.filter(a=>(filter==='all'||a.trajectory===filter)&&(a.company+' '+a.account_id).toLowerCase().includes(query));
+  $('#list').innerHTML=rows.length?rows.map(a=>{
+    const cls=seen[a.account_id]?VERDICTS[seen[a.account_id]][1]:'v-none';
+    return '<button class="acct '+cls+'" data-id="'+esc(a.account_id)+'" aria-current="'+(a.account_id===cur)+'"><b>'+esc(a.company)+'</b>'+
+      '<small>'+esc(a.account_id)+'</small> <span class="chip t-'+esc(a.trajectory)+'">'+esc(TRAJ[a.trajectory]||a.trajectory)+'</span></button>';
+  }).join(''):'<p class="empty">No accounts match.</p>';
+  $('#list').querySelectorAll('.acct').forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));
+}
+
+async function loadAccounts(){
+  try{
+    accounts=await (await fetch('/api/accounts')).json();
+    renderFilters(); renderList(); renderTally();
+  }catch(e){
+    $('#list').innerHTML='<p class="err">Couldn\'t load accounts. Run generate_synthetic_data.py first, then restart app.py.</p>';
+  }
+}
+
+function select(id, refresh=false){
+  const a=accounts.find(x=>x.account_id===id);
+  const t=++ticket;
+  renderList(id);
+  $('#detail').innerHTML='<h2>'+esc(a.company)+'</h2><p class="sub">'+esc(id)+'</p><div class="load"><span class="dot"></span>'+
+    '<span>Reading this account\'s history and similar past accounts. This can take up to a minute.</span></div>';
+  fetch('/api/brief/'+encodeURIComponent(id)+(refresh?'?refresh=1':''))
+    .then(async r=>{ const d=await r.json(); if(!r.ok) throw new Error(d.error||r.statusText); return d; })
+    .then(d=>{ if(t===ticket) show(a,d,refresh); })
+    .catch(e=>{ if(t===ticket) fail(a,e); });
+}
+
+function show(a,d,refresh){
+  const v=splitBriefing(d.briefing);
+  const [label,cls]=VERDICTS[v.key]||['No verdict','v-none'];
+  if(v.key){
+    seen[a.account_id]=v.key;
+    const h=hist[a.account_id]=hist[a.account_id]||[];
+    if(refresh||!h.length){ h.push({k:v.key,t:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}); hist[a.account_id]=h.slice(-8); store.set('rra_hist',JSON.stringify(hist)); }
+  }
+  renderTally(); renderList(a.account_id);
+  const h=hist[a.account_id]||[];
+  const matches=[...new Set(d.playbook_matches||[])];
+  $('#detail').innerHTML=
+    '<div class="bar"><div><h2>'+esc(a.company)+'</h2><p class="sub">'+esc(a.account_id)+' <span class="chip t-'+esc(a.trajectory)+'">'+esc(TRAJ[a.trajectory]||a.trajectory)+'</span></p></div>'+
+    '<div class="btns"><button class="btn" id="copy">Copy briefing</button><button class="btn" id="regen">Regenerate briefing</button></div></div>'+
+    '<div class="verdict '+cls+'"><div class="vw">'+esc(label)+'</div>'+(v.reason?'<p>'+inline(v.reason)+'</p>':'')+'</div>'+
+    (h.length>1?'<div class="hist">Verdict history: '+h.map(x=>'<span class="chip '+VERDICTS[x.k][1]+'">'+VERDICTS[x.k][0]+' '+esc(x.t)+'</span>').join(' ')+'</div>':'')+
+    '<div id="acts">'+md(v.rest)+'</div><p class="prog" id="prog"></p>'+
+    '<div class="btns"><button class="btn" id="draft">Draft outreach email</button></div><div id="draftbox"></div>'+
+    '<details><summary>Log what happened (the agent learns from this)</summary><p>Describe what your team did. Leave out customer names.</p>'+
+    '<input id="act" class="txt" placeholder="e.g. ran a training session on the mobile app" aria-label="Action taken">'+
+    '<select id="res" class="txt" aria-label="Result"><option value="open">Still open</option><option value="renewed">Renewed</option><option value="churned">Churned</option></select> '+
+    '<button class="btn" id="save">Save to memory</button><p id="logmsg"></p></details>'+
+    '<div class="bar"><h3>What the agent remembered</h3><button class="btn" id="tog">Expand all</button></div>'+
+    '<details open><summary>This account\'s history</summary>'+md(d.reflection)+'</details>'+
+    '<details><summary>Similar past accounts ('+matches.length+')</summary>'+
+    (matches.length?'<ul class="trace">'+matches.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul>':'<p>No similar patterns in the playbook yet.</p>')+'</details>';
+
+  // Turn recommended actions into a checklist
+  const items=[...document.querySelectorAll('#acts li')];
+  const upd=()=>{ $('#prog').textContent=items.length?items.filter(li=>li.classList.contains('done')).length+' of '+items.length+' actions done':''; };
+  items.forEach(li=>{
+    li.innerHTML='<label><input type="checkbox"><span>'+li.innerHTML+'</span></label>';
+    li.querySelector('input').addEventListener('change',e=>{ li.classList.toggle('done',e.target.checked); upd(); });
+  });
+  upd();
+
+  $('#regen').addEventListener('click',()=>select(a.account_id,true));
+  $('#draft').addEventListener('click',async()=>{
+    const box=$('#draftbox');
+    box.innerHTML='<div class="load"><span class="dot"></span><span>Drafting from this account\'s memory.</span></div>';
+    try{
+      const r=await fetch('/api/draft/'+encodeURIComponent(a.account_id)); const j=await r.json();
+      if(!r.ok) throw new Error(j.error||r.statusText);
+      box.innerHTML='<textarea class="txt draft" rows="9" aria-label="Draft email">'+esc(j.draft)+'</textarea>';
+    }catch(err){ box.innerHTML='<p class="err">Couldn\'t draft the email. '+esc(err.message)+'</p>'; }
+  });
+  $('#save').addEventListener('click',async()=>{
+    const msg=$('#logmsg'), action=$('#act').value.trim();
+    if(!action){ msg.textContent='Describe what your team did first.'; return; }
+    msg.textContent='Saving.';
+    try{
+      const r=await fetch('/api/outcome/'+encodeURIComponent(a.account_id),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,result:$('#res').value})});
+      const j=await r.json(); if(!r.ok) throw new Error(j.error||r.statusText);
+      msg.textContent='Saved to memory. Regenerate the briefing to see it used.'; $('#act').value='';
+    }catch(err){ msg.textContent='Couldn\'t save: '+err.message; }
+  });
+  $('#copy').addEventListener('click',async e=>{
+    try{ await navigator.clipboard.writeText(d.briefing); e.target.textContent='Copied'; }catch(_){ e.target.textContent='Copy failed'; }
+    setTimeout(()=>{ e.target.textContent='Copy briefing'; },1500);
+  });
+  $('#tog').addEventListener('click',e=>{
+    const all=[...document.querySelectorAll('#detail details')]; const open=all.some(x=>!x.open);
+    all.forEach(x=>x.open=open); e.target.textContent=open?'Collapse all':'Expand all';
+  });
+}
+
+function fail(a,e){
+  $('#detail').innerHTML='<h2>'+esc(a.company)+'</h2><p class="sub">'+esc(a.account_id)+'</p>'+
+    '<div class="err"><p><strong>Couldn\'t build this briefing.</strong> '+esc(e.message)+'</p>'+
+    '<p>Check that Hindsight is reachable and ingestion has finished (python check_status.py), then try again.</p>'+
+    '<button class="btn" id="retry">Try again</button></div>';
+  $('#retry').addEventListener('click',()=>select(a.account_id,true));
+}
+
+$('#q').addEventListener('input',e=>{ query=e.target.value.trim().toLowerCase(); renderList(); });
+$('#list').addEventListener('keydown',e=>{
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp') return;
+  const b=[...document.querySelectorAll('.acct')]; const i=b.indexOf(document.activeElement);
+  if(i<0) return; e.preventDefault();
+  const n=b[i+(e.key==='ArrowDown'?1:-1)]; if(n){ n.focus(); n.click(); setTimeout(()=>{ const c=document.querySelector('.acct[aria-current="true"]'); if(c) c.focus(); },0); }
+});
+
+
+const RANK={critical:0,'at risk':1,watch:2,healthy:3};
+let findings={};
+function renderInbox(d){
+  findings=d.findings||{};
+  const items=Object.values(findings).sort((a,b)=>(RANK[(a.verdict||'').toLowerCase()]??9)-(RANK[(b.verdict||'').toLowerCase()]??9));
+  $('#sweepmsg').textContent=d.running?'Reviewing '+d.done+' of '+d.total+(d.current?': '+d.current:''):
+    (items.length?items.length+' accounts reviewed. Drafts are queued, nothing has been sent.':'The agent reviews every account and queues drafts for you.');
+  $('#sweep').disabled=!!d.running;
+  $('#inbox').innerHTML=items.map(f=>{
+    const cls=(VERDICTS[(f.verdict||'').toLowerCase()]||[0,'v-none'])[1];
+    return '<button class="acct '+cls+'" data-f="'+esc(f.account_id)+'"><b>'+esc(f.company)+'</b><small>'+esc(f.verdict)+
+      (f.draft?' · draft ready':'')+'</small></button>';
+  }).join('');
+  document.querySelectorAll('[data-f]').forEach(b=>b.addEventListener('click',()=>showFinding(findings[b.dataset.f])));
+}
+async function pollInbox(){
+  try{ const d=await (await fetch('/api/inbox')).json(); renderInbox(d); if(d.running) setTimeout(pollInbox,3000); }catch(e){}
+}
+function showFinding(f){
+  ticket++;
+  const [label,cls]=VERDICTS[(f.verdict||'').toLowerCase()]||[f.verdict||'No verdict','v-none'];
+  const how=f.mode==='agent'?'the agent chose its own steps':(f.mode==='pipeline'?'fixed pipeline (the agent loop failed)':'could not be assessed');
+  $('#detail').innerHTML='<h2>'+esc(f.company)+'</h2><p class="sub">'+esc(f.account_id)+', reviewed by '+how+'</p>'+
+    '<div class="verdict '+cls+'"><div class="vw">'+esc(label)+'</div>'+(f.reason?'<p>'+inline(f.reason)+'</p>':'')+'</div>'+
+    md(f.actions||'')+
+    (f.steps&&f.steps.length?'<h3>Steps the agent took</h3><p>'+esc(f.steps.join(' then '))+'</p>':'')+
+    (f.draft?'<h3>Drafted outreach (not sent)</h3><textarea class="txt draft" rows="9" aria-label="Draft email">'+esc(f.draft)+'</textarea>':'')+
+    '<div class="btns"><button class="btn" id="openb">Open full briefing</button></div>';
+  $('#openb').addEventListener('click',()=>select(f.account_id));
+}
+$('#sweep').addEventListener('click',async()=>{ await fetch('/api/sweep',{method:'POST'}); pollInbox(); });
+pollInbox();
+loadAccounts();
+</script>
+</body>
+</html>
