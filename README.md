@@ -32,6 +32,16 @@ For any account, the agent:
 Same agent, same account. The only thing that changes is what it remembers.
 
 ---
+## Features
+
+- Long-term customer memory with Hindsight
+- Account-level renewal risk assessment
+- Historical churn-pattern comparison
+- Usage and engagement tracking
+- Evidence-backed risk signals
+- Recommended customer-success actions
+- Account health dashboard
+- Healthy / Watch / At Risk / Critical states
 
 ## How Hindsight memory is used
 
